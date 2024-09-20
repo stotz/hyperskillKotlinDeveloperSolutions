@@ -1,10 +1,10 @@
-package tictactoe2
+package tictactoe4
 
 import kotlin.math.abs
 
 /**
  * project: https://hyperskill.org/projects/123/stages/658/implement
- * solutions:  * project: https://hyperskill.org/projects/123/stages/658/implement#solutions
+ * solutions: https://hyperskill.org/projects/123/stages/658/implement#solutions
  * The `TicTacToeStep` class represents a Tic-Tac-Toe board.
  * It accepts an array of strings representing the rows of the board, with a default setup.
  *
@@ -12,10 +12,12 @@ import kotlin.math.abs
  *              The default is a 3x3 grid with "X", "O", "_" or " ".
  */
 
-class CoordinatesOutsideException: Exception()
-class CellIsOccupiedException: Exception()
+class CoordinatesOutsideException : Exception()
+class CellIsOccupiedException : Exception()
 
-class TicTacToeStep(var inputString: String) {
+const val EMPTY_INPUT = "         "
+
+class TicTacToe(var inputString: String = EMPTY_INPUT) {
     private var board3x3: MutableList<MutableList<Char>>
 
     init {
@@ -29,9 +31,6 @@ class TicTacToeStep(var inputString: String) {
             }
             board3x3.add(row)
         }
-
-
-
     }
 
     override fun toString(): String {
@@ -133,26 +132,26 @@ class TicTacToeStep(var inputString: String) {
     }
 
     fun gameMove(user: Char) {
-        require(user == 'X' || user == 'O') {"gameMove(user = 'X|O')"}
+        require(user in "XO") { "gameMove(user = 'X|O')" }
         var run = true
         while (run) {
             try {
                 val (x, y) = readln().split(" ").map { it.toInt() }
-                if (x !in 1..3 || y !in 1..3) {throw CoordinatesOutsideException()}
-                if (board3x3[x-1][y-1] !in " _" ) {throw CellIsOccupiedException()}
-                board3x3[x-1][y-1] = user
+                if (x !in 1..3 || y !in 1..3) {
+                    throw CoordinatesOutsideException()
+                }
+                if (board3x3[x - 1][y - 1] !in " _") {
+                    throw CellIsOccupiedException()
+                }
+                board3x3[x - 1][y - 1] = user
                 run = false
-            }
-            catch (e: NumberFormatException) {
+            } catch (e: NumberFormatException) {
                 println("You should enter numbers!")
-            }
-            catch (e: CoordinatesOutsideException) {
+            } catch (e: CoordinatesOutsideException) {
                 println("Coordinates should be from 1 to 3!")
-            }
-            catch (e: CellIsOccupiedException) {
+            } catch (e: CellIsOccupiedException) {
                 println("This cell is occupied!")
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 println("Unknown error: ${e.message}")
             }
         }
@@ -161,11 +160,22 @@ class TicTacToeStep(var inputString: String) {
     fun display() {
         println(this)
     }
+
+    fun play() {
+        display()
+        val players = listOf('O', 'X')
+        for (move in 1..9) {
+            val player = players[move % 2]
+            gameMove(player)
+            display()
+            val result = analyze()
+            println(result)
+            if (result in listOf("X wins", "O wins", "Draw")) break
+        }
+    }
 }
 
 fun main() {
-    val ticTacToe = TicTacToeStep(readln())
-    ticTacToe.display()
-    ticTacToe.gameMove(user = 'X')
-    ticTacToe.display()
+    val ticTacToe = TicTacToe()
+    ticTacToe.play()
 }
